@@ -55,4 +55,11 @@ public class monitoredServiceController {
 
       }
 
+      @PatchMapping("state/{uuid}/{state}")
+    public ResponseEntity<MonitoredServiceResponse> changeState(@PathVariable UUID uuid,
+                                                                @PathVariable boolean state){
+          MonitoredServiceResponse service = monitoredService.changeState(uuid,state);
+          return ResponseEntity.ok(service);
+      }
+
 }
