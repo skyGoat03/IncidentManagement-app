@@ -1,5 +1,6 @@
 package com.roshan.monitoringplatform.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,21 @@ public class JWTService {
                 .expiration(new Date(currentTime+expirationMs))
                 .signWith(key)
                 .compact();
+    }
+
+    public String getEmailFromJWT(String token){
+
+        SecretKey key = Keys.hmacShaKeyFor(
+                secret.getBytes(StandardCharsets.UTF_8)
+        );
+
+        Claims claim = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claim.getSubject();
     }
 
 }

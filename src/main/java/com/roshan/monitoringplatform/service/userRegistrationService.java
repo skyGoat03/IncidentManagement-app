@@ -62,13 +62,16 @@ public class userRegistrationService {
 
 
         User user = UserRepo.findByEmail(request.getEmail());
-        System.out.println("USER object" + user);
+
         if (user != null) {
             Boolean isPasswordMatch = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
 
             if (isPasswordMatch) {
                 String token = jwtService.generateToken(user.getEmail());
-                return  ResponseEntity.ok(token);
+
+                return  ResponseEntity.ok()
+                        .header("Authorization","Bearer"+token)
+                        .body("Login successful");
 
             }
 
