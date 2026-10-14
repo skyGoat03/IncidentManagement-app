@@ -1,12 +1,14 @@
 package com.roshan.monitoringplatform.filter;
 
 
+import com.roshan.monitoringplatform.Repository.userRepository;
 import com.roshan.monitoringplatform.service.JWTService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -19,9 +21,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;
 
+    @Autowired
+    private userRepository userRepo;
+
+
     public JwtAuthenticationFilter(JWTService jwtService){
         this.jwtService = jwtService;
+
     }
+
     @Override
     protected  void doFilterInternal(
             HttpServletRequest request , HttpServletResponse response , FilterChain filterChain
@@ -33,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 String email = jwtService.getEmailFromJWT(token);
+
                 if(SecurityContextHolder.getContext().getAuthentication()==null) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             email, null, Collections.emptyList());
