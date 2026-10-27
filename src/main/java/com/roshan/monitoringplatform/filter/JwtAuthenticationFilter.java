@@ -1,6 +1,7 @@
 package com.roshan.monitoringplatform.filter;
 
 
+import com.roshan.monitoringplatform.Entity.User;
 import com.roshan.monitoringplatform.Repository.userRepository;
 import com.roshan.monitoringplatform.service.JWTService;
 import io.jsonwebtoken.JwtException;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -41,10 +43,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 String email = jwtService.getEmailFromJWT(token);
+                User user = userRepo.findByEmail(email);
+                if(user == null ){
+                    throw new IllegalArgumentException("User not found ");
+                }
+                String role = "ROLE_"+user.getRole().name();
+                SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role);
 
                 if(SecurityContextHolder.getContext().getAuthentication()==null) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            email, null, Collections.emptyList());
+                            email, null, Collections.singletonList(simpleGrantedAuthority));
+
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 

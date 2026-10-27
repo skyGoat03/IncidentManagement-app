@@ -1,6 +1,7 @@
 package com.roshan.monitoringplatform.config;
 import com.roshan.monitoringplatform.filter.JwtAuthenticationFilter;
 import com.roshan.monitoringplatform.service.JWTService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
@@ -34,9 +35,13 @@ public class securityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/login",
                                 "/user/registration").permitAll()
+                        .requestMatchers("/api/services/delete/*" , "/api/services/create").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex-> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Authentication Required")));
 
 
         return http.build();
